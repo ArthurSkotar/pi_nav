@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<robot name="myfirst">
+
+  <material name="green">
+    <color rgba="108 192 74 1"/>
+  </material>
+
+  <link name="pi1">
+    <visual>
+      <geometry>
+        <box size="0.01 0.08 0.06"/>
+      </geometry>
+      <material name="green"/>
+    </visual>
+  </link>
+</robot>

@@ -15,7 +15,7 @@ import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String
 import numpy as np
-from sensor_msgs.msg import Temperature, Imu
+from sensor_msgs.msg import Temperature, Imu, MagneticField
 from tf_transformations import quaternion_about_axis
 
 
@@ -46,12 +46,16 @@ class MinimalPublisher(Node):
         self.gps_socket.connect()
         self.gps_socket.watch()
 
-        self.publisher_ = self.create_publisher(Imu, 'imu/data', 10)
-        timer_period = 0.1  # seconds
+        self.publisher_ = self.create_publisher(Imu, 'imu/data_raw', 10)
+        self.publisher_mg = self.create_publisher(MagneticField, 'imu/mag', 10)
+        timer_period = 0.01  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
         self.i = 0
         self.prev_lat = float(0.0)
         self.prev_lon = float(0.0)
+        self.pos = {"x": 0, "y": 0, "z": 0}
+        self.imu_seq = 0
+        self.mag_sq = 0
 
     def get_temperature(self):
         current_file_dir = os.path.dirname(os.path.realpath(__file__))
@@ -149,8 +153,16 @@ class MinimalPublisher(Node):
         imu_msg.angular_velocity.x = gyro_x
         imu_msg.angular_velocity.y = gyro_y
         imu_msg.angular_velocity.z = gyro_z
+        imu_msg.header.stamp = self.get_clock().now().to_msg()
         self.publisher_.publish(imu_msg)
         self.get_logger().info('Publishing: "%s"' % imu_msg)
+        m_field = MagneticField()
+        m_field.header.stamp = self.get_clock().now().to_msg()
+        m_field.header.frame_id = "world"
+        m_field.magnetic_field.x = self.sense.get_compass_raw()["x"]
+        m_field.magnetic_field.y = self.sense.get_compass_raw()["y"]
+        m_field.magnetic_field.z = self.sense.get_compass_raw()["z"]
+        self.publisher_mg.publish(m_field)
 
 
 def quaternion_from_euler(ai, aj, ak):

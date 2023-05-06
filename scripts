@@ -1,0 +1,11 @@
+sudo chmod 0666 /dev/ttyS0
+colcon build --packages-select py_pubsub
+source install/setup.bash
+ros2 launch py_pubsub pi_tf2.launch.py model:=urdf/njord.urdf
+-1.7902e+20; -4.2372e+19; -9.416e+20
+
+
+
+calibrated accel
+[array([ 1.00568396, -0.02550347]), array([ 0.99854652, -0.02916419]), array([0.99739481, 0.00660888])]
+[array([ 1.00447219, -0.02507492]), array([ 0.99897462, -0.02204527]), array([0.99719942, 0.00755595])]
